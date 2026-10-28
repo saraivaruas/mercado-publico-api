@@ -1,0 +1,21 @@
+# Secretos: nunca suba un ticket
+.env
+.env.*
+*.ticket
+
+# PHP
+php/vendor/
+php/composer.lock
+
+# .NET
+dotnet/**/bin/
+dotnet/**/obj/
+
+# Rust
+rust/target/
+rust/Cargo.lock
+
+# Editor / sistema
+.idea/
+.vscode/
+.DS_Store

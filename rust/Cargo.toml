@@ -1,0 +1,18 @@
+[package]
+name = "mercado_publico"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Jorge Luis Saraiva Ruas"]
+description = "Cliente de la API pública de Mercado Público (ChileCompra): licitaciones, órdenes de compra, convenios marco, Compra Ágil y quién compra / quién vende."
+license = "MIT"
+repository = "https://github.com/saraivaruas/mercado-publico-api"
+readme = "README.md"
+keywords = ["chile", "mercado-publico", "chilecompra", "licitaciones", "compra-agil"]
+categories = ["api-bindings"]
+
+[dependencies]
+ureq = { version = "2", default-features = false, features = ["tls"] }
+serde_json = "1"
+chrono = { version = "0.4", default-features = false, features = ["std", "clock"] }
+chrono-tz = "0.10"

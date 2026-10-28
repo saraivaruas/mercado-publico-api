@@ -14,5 +14,19 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>chile;mercado-publico;chilecompra;licitaciones;compra-agil;convenio-marco</PackageTags>
     <RepositoryUrl>https://github.com/saraivaruas/mercado-publico-api</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/saraivaruas/mercado-publico-api</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Ver https://github.com/saraivaruas/mercado-publico-api/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <Copyright>Copyright (c) 2026 Jorge Luis Saraiva Ruas</Copyright>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 </Project>

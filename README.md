@@ -40,6 +40,17 @@ Sin dependencias externas en PHP y C#.
 
 Las fallas de la API **no lanzan excepciones**: se devuelven con `exito = false` y el mensaje oficial (por ejemplo `Ticket no válido.`).
 
+## Instalación
+
+| Lenguaje | Comando | Registro |
+|---|---|---|
+| PHP 8.1+ | `composer require saraivaruas/mercado-publico` | [Packagist](https://packagist.org/packages/saraivaruas/mercado-publico) |
+| C# (.NET 8 y 10) | `dotnet add package MercadoPublico` | [NuGet](https://www.nuget.org/packages/MercadoPublico) |
+| Rust 1.88+ | `cargo add mercado_publico` | [crates.io](https://crates.io/crates/mercado_publico) |
+
+> Los enlaces funcionan desde que se publica cada paquete; el estado de cada publicación está en el [CHANGELOG](CHANGELOG.md) y en
+> [Releases](https://github.com/saraivaruas/mercado-publico-api/releases). Cómo se publican y actualizan: [RELEASING.md](RELEASING.md).
+
 ## Uso
 
 El ticket se lee de una variable de entorno; **nunca lo escriba en el código**.
@@ -76,7 +87,7 @@ var ca = await c.CompraAgilPublicadasAsync(new OpcionesCompraAgil { Regiones = n
 if (ca.Truncado) { /* faltan registros */ }
 ```
 
-### Rust (1.75+)
+### Rust (1.88+)
 
 ```rust
 use mercado_publico::*;

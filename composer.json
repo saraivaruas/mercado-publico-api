@@ -3,16 +3,25 @@
     "description": "Cliente PHP de la API pública de Mercado Público (ChileCompra): licitaciones, órdenes de compra, convenios marco, Compra Ágil y quién compra / quién vende. Sin dependencias.",
     "type": "library",
     "license": "MIT",
+    "homepage": "https://github.com/saraivaruas/mercado-publico-api",
     "keywords": ["chile", "mercado-publico", "chilecompra", "licitaciones", "compra-agil", "convenio-marco"],
+    "authors": [
+        { "name": "Jorge Luis Saraiva Ruas", "homepage": "https://github.com/saraivaruas" }
+    ],
+    "support": {
+        "issues": "https://github.com/saraivaruas/mercado-publico-api/issues",
+        "source": "https://github.com/saraivaruas/mercado-publico-api",
+        "docs": "https://github.com/saraivaruas/mercado-publico-api#readme"
+    },
     "require": {
         "php": ">=8.1",
         "ext-curl": "*",
         "ext-json": "*"
     },
     "autoload": {
-        "psr-4": { "MercadoPublico\\": "src/" }
+        "psr-4": { "MercadoPublico\\": "php/src/" }
     },
     "scripts": {
-        "test": "php tests/run.php"
+        "test": "php php/tests/run.php"
     }
 }

@@ -8,6 +8,8 @@ use std::time::{Duration, Instant};
 
 const REGIONES: u8 = 16;
 const TAMANO_PAGINA: u32 = 50;
+/// Tope del cuerpo de una respuesta (bytes). ureq 3 corta en 10 MB por defecto; el listado de licitaciones activas ya pesa ~0,8 MB.
+const LIMITE_CUERPO: u64 = 64 * 1024 * 1024;
 
 /// Filtros de licitaciones y órdenes de compra. Con `fecha` el listado trae solo código, nombre y estado;
 /// el DETALLE (comprador, adjudicación, ítems) solo viene al consultar por `codigo`.
@@ -52,7 +54,12 @@ impl Cliente {
         if opciones.max_intentos < 1 {
             return Err("max_intentos debe ser al menos 1.".into());
         }
-        let agente = ureq::AgentBuilder::new().timeout(Duration::from_secs(opciones.timeout_segundos)).build();
+        // http_status_as_error(false): un 4xx/5xx también trae cuerpo JSON con el mensaje oficial, que hay que leer.
+        let agente: ureq::Agent = ureq::Agent::config_builder()
+            .timeout_global(Some(Duration::from_secs(opciones.timeout_segundos)))
+            .http_status_as_error(false)
+            .build()
+            .into();
         Ok(Self {
             o: opciones,
             agente,
@@ -303,13 +310,20 @@ impl Cliente {
         if let Some(e) = espera.filter(|e| !e.is_zero()) {
             sleep(e);
         }
-        let mut req = self.agente.get(url).set("User-Agent", &self.o.user_agent).set("Accept", "application/json");
+        let mut req = self
+            .agente
+            .get(url)
+            .header("User-Agent", &self.o.user_agent)
+            .header("Accept", "application/json");
         if v2 {
-            req = req.set("ticket", &self.o.ticket);
+            req = req.header("ticket", &self.o.ticket);
         }
         let salida = match req.call() {
-            Ok(r) => (r.status(), r.into_string().unwrap_or_default()),
-            Err(ureq::Error::Status(codigo, r)) => (codigo, r.into_string().unwrap_or_default()),
+            // Sin subir el tope por defecto de ureq 3 (10 MB), un listado grande se cortaría y parecería un fallo de red.
+            Ok(mut r) => (
+                r.status().as_u16(),
+                r.body_mut().with_config().limit(LIMITE_CUERPO).read_to_string().unwrap_or_default(),
+            ),
             Err(_) => (0, String::new()),
         };
         *self.ultima.lock().unwrap() = Some(Instant::now());

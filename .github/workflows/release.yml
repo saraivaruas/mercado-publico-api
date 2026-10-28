@@ -23,8 +23,9 @@ jobs:
   nuget:
     needs: pruebas
     runs-on: ubuntu-latest
-    env:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+    permissions:
+      contents: read
+      id-token: write   # Trusted Publishing: GitHub entrega un permiso temporal a NuGet, sin API key guardada
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -37,12 +38,18 @@ jobs:
         with:
           name: nuget
           path: paquetes/*
+      - name: Obtener permiso temporal de NuGet (Trusted Publishing)
+        id: login
+        continue-on-error: true
+        uses: NuGet/login@v1
+        with:
+          user: jorgesaraivaruas
       - name: Publicar en NuGet
-        if: env.NUGET_API_KEY != ''
-        run: dotnet nuget push "paquetes/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
-      - name: Sin secreto NUGET_API_KEY
-        if: env.NUGET_API_KEY == ''
-        run: echo "::warning::No hay secreto NUGET_API_KEY; el paquete NO se publicó en NuGet."
+        if: steps.login.outcome == 'success'
+        run: dotnet nuget push "paquetes/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: NuGet no autorizó la publicación
+        if: steps.login.outcome != 'success'
+        run: echo "::warning::NuGet no entregó el permiso temporal (falta la política de Trusted Publishing en nuget.org); el paquete NO se publicó."
 
   crates:
     needs: pruebas

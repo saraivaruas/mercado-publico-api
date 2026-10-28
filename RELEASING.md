@@ -5,7 +5,7 @@ Hay **un solo repositorio y tres paquetes**, con la misma versión (SemVer):
 | Lenguaje | Registro | Nombre | Cómo se publica |
 |---|---|---|---|
 | PHP | [Packagist](https://packagist.org) | `saraivaruas/mercado-publico` | Automático: Packagist lee las etiquetas de git por el webhook de GitHub |
-| C# | [NuGet](https://www.nuget.org) | `MercadoPublico` | El flujo `Release` (secreto `NUGET_API_KEY`) |
+| C# | [NuGet](https://www.nuget.org) | `MercadoPublico` | El flujo `Release` con *Trusted Publishing* (sin clave guardada) |
 | Rust | [crates.io](https://crates.io) | `mercado_publico` | El flujo `Release` (secreto `CARGO_REGISTRY_TOKEN`) |
 
 ## Qué es una versión mayor, menor o parche
@@ -39,8 +39,10 @@ Hay **un solo repositorio y tres paquetes**, con la misma versión (SemVer):
 
 1. **Packagist:** inicie sesión con GitHub, use «Submit» con `https://github.com/saraivaruas/mercado-publico-api` y acepte
    instalar el webhook. Desde entonces cada etiqueta nueva aparece sola.
-2. **NuGet:** en nuget.org cree una *API key* limitada a publicar el paquete `MercadoPublico` y guárdela como secreto
-   `NUGET_API_KEY` del repositorio (Settings → Secrets and variables → Actions).
+2. **NuGet (Trusted Publishing, sin API key):** en nuget.org entre a su cuenta → *Trusted Publishing* → *Create* y complete:
+   Policy Name `MercadoPublico`, Package Owner su usuario de NuGet, CI/CD Provider `GitHub Actions`, Repository Owner
+   `saraivaruas`, Repository `mercado-publico-api`, Workflow File `release.yml` y **Environment vacío**. El flujo pide a NuGet un
+   permiso temporal en cada publicación; no hay ninguna clave que guardar ni que se pueda filtrar.
 3. **crates.io:** inicie sesión con GitHub, cree un token con permiso de publicar y guárdelo como secreto
    `CARGO_REGISTRY_TOKEN`. La **primera** publicación de un nombre exige un token con permiso `publish-new`.
 4. **Opcional, vigilancia de la API:** guarde su ticket de Mercado Público como secreto `MERCADOPUBLICO_TICKET`; el flujo

@@ -1,5 +1,13 @@
 # Cambios
 
+## 1.0.1 — 2026-10
+
+- **Rust:** migra `ureq` de la versión 2 a la 3, con la misma API pública. Se mantiene Rust 1.88 como versión mínima.
+  Verificado con las 18 pruebas offline y con la prueba viva contra la API real.
+- **PHP y C#:** sin cambios de comportamiento. La versión sube igual porque los tres paquetes comparten número.
+- El CI ahora ejercita el empaquetado (`dotnet pack`, subida y descarga de artefactos, `cargo package`, `composer validate`) y
+  las acciones de GitHub se actualizaron (`checkout` 7, `setup-dotnet` 6, `upload-artifact` 7, `download-artifact` 8).
+
 ## 1.0.0 — 2026-10
 
 Primera versión pública, en PHP, C# y Rust con el mismo comportamiento.

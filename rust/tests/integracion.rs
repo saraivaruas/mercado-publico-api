@@ -67,7 +67,7 @@ fn atender(mut s: TcpStream) {
 
     if path.starts_with("/v2") {
         let ticket = cab.get("ticket").cloned().unwrap_or_default();
-        if ticket.is_empty() || cab.get("user-agent").map_or(true, |u| u.is_empty()) {
+        if ticket.is_empty() || cab.get("user-agent").is_none_or(|u| u.is_empty()) {
             return responder(s, 403, r#"{"message":"Forbidden"}"#);
         }
         if ticket.starts_with("lento") {

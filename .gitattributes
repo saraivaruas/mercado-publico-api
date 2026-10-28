@@ -1,0 +1,11 @@
+# Al instalar con Composer solo se baja el código PHP, no los otros lenguajes ni la infraestructura.
+/dotnet        export-ignore
+/rust          export-ignore
+/docs          export-ignore
+/tools         export-ignore
+/.github       export-ignore
+/.gitattributes export-ignore
+/.gitignore    export-ignore
+/php/tests     export-ignore
+/CONTRIBUTING.md export-ignore
+/RELEASING.md  export-ignore

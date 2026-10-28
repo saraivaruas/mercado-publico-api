@@ -76,7 +76,7 @@ var ca = await c.CompraAgilPublicadasAsync(new OpcionesCompraAgil { Regiones = n
 if (ca.Truncado) { /* faltan registros */ }
 ```
 
-### Rust (1.75+)
+### Rust (1.88+)
 
 ```rust
 use mercado_publico::*;

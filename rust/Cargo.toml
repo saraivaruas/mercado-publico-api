@@ -2,7 +2,7 @@
 name = "mercado_publico"
 version = "1.0.0"
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.88"
 authors = ["Jorge Luis Saraiva Ruas"]
 description = "Cliente de la API pública de Mercado Público (ChileCompra): licitaciones, órdenes de compra, convenios marco, Compra Ágil y quién compra / quién vende."
 license = "MIT"

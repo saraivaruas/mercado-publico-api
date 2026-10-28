@@ -53,3 +53,34 @@ jobs:
           cargo fmt --check
           cargo clippy --all-targets -- -D warnings
           cargo test
+
+  # Ejercita lo que usa la publicación (release.yml), que no corre en los pull requests: así un cambio de
+  # Dependabot en pack, upload/download-artifact o setup-dotnet se detecta ANTES de una etiqueta.
+  empaquetado:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - run: dotnet pack dotnet/MercadoPublico/MercadoPublico.csproj -c Release -o paquetes
+      - uses: actions/upload-artifact@v4
+        with:
+          name: paquetes-ci
+          path: paquetes/*
+      - uses: actions/download-artifact@v4
+        with:
+          name: paquetes-ci
+          path: descargado
+      - name: El paquete descargado debe ser el construido
+        run: |
+          ls -l descargado
+          test -f descargado/MercadoPublico.*.nupkg
+          test -f descargado/MercadoPublico.*.snupkg
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Empaquetar el crate (como lo haría cargo publish)
+        run: cargo package --manifest-path rust/Cargo.toml
+      - name: Validar composer.json
+        run: composer validate --strict

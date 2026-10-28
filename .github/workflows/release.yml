@@ -1,0 +1,85 @@
+name: Release
+
+# Se dispara al subir una etiqueta vX.Y.Z creada sobre main (ver RELEASING.md).
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+
+permissions:
+  contents: write
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: La etiqueta, C#, Rust y el CHANGELOG deben coincidir
+        run: tools/version.sh check "$GITHUB_REF_NAME"
+
+  pruebas:
+    needs: verificar
+    uses: ./.github/workflows/ci.yml
+
+  nuget:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # Trusted Publishing: GitHub entrega un permiso temporal a NuGet, sin API key guardada
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - run: dotnet pack dotnet/MercadoPublico/MercadoPublico.csproj -c Release -o paquetes
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          path: paquetes/*
+      - name: Obtener permiso temporal de NuGet (Trusted Publishing)
+        id: login
+        continue-on-error: true
+        uses: NuGet/login@v1
+        with:
+          user: jorgesaraivaruas
+      - name: Publicar en NuGet
+        if: steps.login.outcome == 'success'
+        run: dotnet nuget push "paquetes/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: NuGet no autorizó la publicación
+        if: steps.login.outcome != 'success'
+        run: echo "::warning::NuGet no entregó el permiso temporal (falta la política de Trusted Publishing en nuget.org); el paquete NO se publicó."
+
+  crates:
+    needs: pruebas
+    runs-on: ubuntu-latest
+    env:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Publicar en crates.io
+        if: env.CARGO_REGISTRY_TOKEN != ''
+        working-directory: rust
+        run: cargo publish
+      - name: Sin secreto CARGO_REGISTRY_TOKEN
+        if: env.CARGO_REGISTRY_TOKEN == ''
+        run: echo "::warning::No hay secreto CARGO_REGISTRY_TOKEN; el crate NO se publicó en crates.io."
+
+  github-release:
+    needs: [nuget, crates]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget
+          path: paquetes
+      - name: Crear el GitHub Release con las notas del CHANGELOG
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '$0 ~ "^## " v "( |$)" {dentro=1; next} /^## / {dentro=0} dentro' CHANGELOG.md > notas.md
+          gh release create "$GITHUB_REF_NAME" paquetes/*.nupkg paquetes/*.snupkg --title "$GITHUB_REF_NAME" --notes-file notas.md --verify-tag

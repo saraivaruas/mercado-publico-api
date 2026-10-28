@@ -1,0 +1,29 @@
+name: API viva
+
+# Vigila una vez por semana que la API real de Mercado Público siga respondiendo como espera la biblioteca.
+# Solo lectura (~15 consultas). Necesita el secreto MERCADOPUBLICO_TICKET; sin él, no hace nada.
+on:
+  schedule:
+    - cron: '0 12 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  viva:
+    runs-on: ubuntu-latest
+    env:
+      MERCADOPUBLICO_TICKET: ${{ secrets.MERCADOPUBLICO_TICKET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, json
+      - name: Prueba viva (PHP)
+        if: env.MERCADOPUBLICO_TICKET != ''
+        run: php php/tests/vivo.php
+      - name: Sin secreto MERCADOPUBLICO_TICKET
+        if: env.MERCADOPUBLICO_TICKET == ''
+        run: echo "::notice::No hay secreto MERCADOPUBLICO_TICKET; no se consultó la API real."
